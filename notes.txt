@@ -1,0 +1,51 @@
+Important: The original chemical experiment measured ~30 wine properties 
+(It probably contained around 30 chemical measurements per wine.)
+
+Only 13 features survived in the public UCI version
+
+we have 3 types of wines
+-> 13 constituents found in each of the three types of wines. 
+
+* Samples: 178
+* Features: 13
+* Classes: 3
+* Missing values: none
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+DATA OVERWIEV -> siehe overview.py
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+178 rows = 178 wine samples
+14 columns = 1 class column + 13 chemical attributes
+IMPORTANT! No missing values = every column has 178 non-null values
+3 classes:
+    * class 1: 59 wines
+    * class 2: 71 wines
+    * class 3: 48 wines
+
+
+     #   Column                Non-Null Count  Dtype  
+---  ------                --------------  -----  
+ 0   class                 178 non-null    int64  
+ 1   alcohol               178 non-null    float64
+ 2   malic_acid            178 non-null    float64
+ 3   ash                   178 non-null    float64
+ 4   alcalinity_of_ash     178 non-null    float64
+ 5   magnesium             178 non-null    int64  
+ 6   total_phenols         178 non-null    float64
+ 7   flavanoids            178 non-null    float64
+ 8   nonflavanoid_phenols  178 non-null    float64
+ 9   proanthocyanins       178 non-null    float64
+ 10  color_intensity       178 non-null    float64
+ 11  hue                   178 non-null    float64
+ 12  od280_od315           178 non-null    float64
+ 13  proline               178 non-null    int64  
+dtypes: float64(11), int64(3)
+memory usage: 19.6 
+
+3 clases: die sind non numerical values (sind categorical)
+dann alles ist numerisch -> int, float
+features die Integer sind: Proline, Magnesium)
+sonst alle kontinuielich (float)
+
+siehe wine_table.csv too see the whole dataset 
+ 
