@@ -18,7 +18,7 @@ columns = [
     "proline"
 ]
 
-df = pd.read_csv("/Users/anshulkhubchandani/Documents/3Semester/Visualisierung/visualisierung/wine_dataset/wine.data", header=None, names=columns)
+df = pd.read_csv("/Users/anshulkhubchandani/Documents/Master_3_Semester/Visualisierung/visualisierung/wine_dataset/wine.data", header=None, names=columns)
 
 print(df.head())
 print(df.info())
