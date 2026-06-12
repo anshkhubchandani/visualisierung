@@ -37,4 +37,14 @@ VISUALISIERUNG ->  Basic interactive Parallel Coordinates
 
 9. Vergleich Original vs SIM vs DIS
 
-optionale stufffff
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+alles done jetzt nur noch: optionale stufffff
+
+- cluster evaluatioon wäre nice 
+zB: Original class vs KMeans cluster
+
+- Visualisierung verbessern
+Color by:
+ ( ) Original class
+ (  ) KMeans cluster
+- um echte labels zu finden? im still not sure wie diese clusters so was sind cluster 3 ist class1????

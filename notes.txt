@@ -1,3 +1,5 @@
+#Diese file wird gelöscht!
+
 Important: The original chemical experiment measured ~30 wine properties 
 (It probably contained around 30 chemical measurements per wine.)
 
