@@ -29,22 +29,23 @@ print(axis_orders["SIM"])
 print("\nDIS order:")
 print(axis_orders["DIS"])
 
-def create_parallel_coordinates(ordering_name):
+def create_parallel_coordinates(ordering_name, color_by):
     selected_order = axis_orders[ordering_name]
-
     dimensions = selected_order + ["class"]
+
+    color_title = "Original class" if color_by == "class" else "KMeans cluster"
 
     fig = px.parallel_coordinates(
         df,
         dimensions=dimensions,
-        color="cluster",
+        color=color_by,
         range_color=[1, 3],
         color_continuous_scale=[
             "#f2d70b",
             "#a56eff",
-            "#009d9a"
+            "#00CBC1"
         ],
-        title=f"Wine Dataset - {ordering_name} axis order"
+        title=f"Wine Dataset - {ordering_name} axis order, colored by {color_title}"
     )
 
     fig.update_traces(
@@ -64,15 +65,15 @@ def create_parallel_coordinates(ordering_name):
 
     fig.update_layout(
         coloraxis_colorbar=dict(
-            title="KMeans cluster",
+            title=color_title,
             tickvals=[1, 2, 3],
-            ticktext=["cluster 1", "cluster 2", "cluster 3"]
+            ticktext=["1", "2", "3"]
         )
     )
 
     return fig
 
-#DASSHI DASH / APP LAYOUT
+#DASH / APP LAYOUT
 
 app = Dash(__name__)
 
@@ -96,8 +97,18 @@ app.layout = html.Div(
             value="Original",
             clearable=False
         ),
-
-        # NEW: explanation text
+        html.Label("Color encoding:"),
+        dcc.Dropdown(
+            id="color-dropdown",
+            options=[
+                {"label": "Original wine class", "value": "class"},
+                {"label": "KMeans cluster", "value": "cluster"},
+                ],
+                value="cluster",
+                clearable=False
+                ),
+        
+        # explaining the drop down options
         html.Div(
             id="ordering-description",
             style={
@@ -109,7 +120,7 @@ app.layout = html.Div(
 
         dcc.Graph(
             id="parallel-coordinates-plot",
-            figure=create_parallel_coordinates("Original")
+            figure=create_parallel_coordinates("Original", "cluster")
         )
     ]
 )
@@ -118,17 +129,17 @@ app.layout = html.Div(
 @app.callback(
     Output("parallel-coordinates-plot", "figure"),
     Output("ordering-description", "children"),
-    Input("ordering-dropdown", "value")
+    Input("ordering-dropdown", "value"),
+    Input("color-dropdown", "value")
 )
-def update_plot(selected_ordering):
-
+def update_plot(selected_ordering, selected_color):
     descriptions = {
         "Original": "Original order: The axes are shown in the order of the dataset.",
         "SIM": "SIM order: Similar dimensions are placed next to each other.",
         "DIS": "DIS order: Dissimilar dimensions are placed next to each other. This can make clusters more salient in cluttered data."
     }
 
-    return create_parallel_coordinates(selected_ordering), descriptions[selected_ordering]
+    return create_parallel_coordinates(selected_ordering, selected_color), descriptions[selected_ordering]
 
 if __name__ == "__main__":
     app.run(debug=True)
