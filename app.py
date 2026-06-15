@@ -32,24 +32,41 @@ print(axis_orders["DIS"])
 def create_parallel_coordinates(ordering_name):
     selected_order = axis_orders[ordering_name]
 
+    dimensions = selected_order + ["class"]
+
     fig = px.parallel_coordinates(
         df,
-        dimensions=selected_order,
+        dimensions=dimensions,
         color="cluster",
         range_color=[1, 3],
         color_continuous_scale=[
-            "#B4CEF7",
-            "#CDEFD5",
-            "#EDC4C5"
+            "#f2d70b",
+            "#a56eff",
+            "#009d9a"
         ],
         title=f"Wine Dataset - {ordering_name} axis order"
+    )
+
+    fig.update_traces(
+        dimensions=[
+            dict(
+                label=dim,
+                values=df[dim],
+                tickvals=[1, 2, 3],
+                ticktext=["class 1", "class 2", "class 3"]
+            ) if dim == "class" else dict(
+                label=dim,
+                values=df[dim]
+            )
+            for dim in dimensions
+        ]
     )
 
     fig.update_layout(
         coloraxis_colorbar=dict(
             title="KMeans cluster",
             tickvals=[1, 2, 3],
-            ticktext=["1", "2", "3"]
+            ticktext=["cluster 1", "cluster 2", "cluster 3"]
         )
     )
 
