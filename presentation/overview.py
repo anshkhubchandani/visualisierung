@@ -19,7 +19,7 @@ print(df["class"].value_counts().sort_index())
 #schön für die Präsentation: Balkendiagramm der Anzahl der Samples pro Klasse
 
 class_counts = df["class"].value_counts().sort_index()
-class_counts.plot( kind="bar", color=["#B4CEF7", "#CDEFD5", "#EDC4C5"],rot=0)
+class_counts.plot( kind="bar", color=["#f2d70b", "#a56eff", "#009d9a"],rot=0)
 
 
 plt.xlabel("Wine class")
