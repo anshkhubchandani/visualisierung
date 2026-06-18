@@ -60,10 +60,9 @@ def greedy_axis_order(similarity_matrix, mode="SIM"):
     return order
 
 
-
 if __name__ == "__main__":
   if __name__ == "__main__":
-    from src.preprocessing import load_and_preprocess
+    from preprocessing import load_and_preprocess
 
     df = load_and_preprocess()
     feature_columns = df.drop(columns=["class"]).columns
