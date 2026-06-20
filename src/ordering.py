@@ -119,28 +119,98 @@ def print_axis_order_debug(similarity_matrix, order, name):
 
 
 if __name__ == "__main__":
-    from src.preprocessing import load_and_preprocess
-
-    df = load_and_preprocess()
-    feature_columns = df.drop(columns=["class"]).columns
-
-    similarity_matrix = compute_similarity_matrix(df, feature_columns)
-
-    sim_order = greedy_axis_order(similarity_matrix, mode="SIM")
-    dis_order = greedy_axis_order(similarity_matrix, mode="DIS")
-
-    sim_score = print_axis_order_debug(
-        similarity_matrix,
-        sim_order,
-        "SIM"
+    from preprocessing import (
+        load_and_preprocess,
+        load_and_preprocess_cars
     )
 
-    dis_score = print_axis_order_debug(
-        similarity_matrix,
-        dis_order,
-        "DIS"
+    # Wine Dataset Debug
+    print("WINE DATASET")
+
+    wine_df = load_and_preprocess()
+
+    wine_features = wine_df.drop(
+        columns=["class"]
+    ).columns
+
+    wine_similarity_matrix = compute_similarity_matrix(
+        wine_df,
+        wine_features
     )
 
-    print("\nSummary:")
-    print(f"SIM score: {sim_score:.3f}")
-    print(f"DIS score: {dis_score:.3f}")
+    wine_sim_order = greedy_axis_order(
+        wine_similarity_matrix,
+        mode="SIM"
+    )
+
+    wine_dis_order = greedy_axis_order(
+        wine_similarity_matrix,
+        mode="DIS"
+    )
+
+
+    wine_sim_score = print_axis_order_debug(
+        wine_similarity_matrix,
+        wine_sim_order,
+        "Wine SIM"
+    )
+
+    wine_dis_score = print_axis_order_debug(
+        wine_similarity_matrix,
+        wine_dis_order,
+        "Wine DIS"
+    )
+
+
+    print("\nWine Summary:")
+    print(f"SIM score: {wine_sim_score:.3f}")
+    print(f"DIS score: {wine_dis_score:.3f}")
+
+
+    # Cars Dataset Debug
+    print("CARS DATASET")
+    cars_df, cars_original = load_and_preprocess_cars()
+
+    cars_features = cars_df.drop(
+        columns=[
+            "origin",
+            "model_year"
+        ]
+    ).columns
+
+
+    cars_similarity_matrix = compute_similarity_matrix(
+        cars_df,
+        cars_features
+    )
+
+
+    cars_sim_order = greedy_axis_order(
+        cars_similarity_matrix,
+        mode="SIM"
+    )
+
+
+    cars_dis_order = greedy_axis_order(
+        cars_similarity_matrix,
+        mode="DIS"
+    )
+
+
+    cars_sim_score = print_axis_order_debug(
+        cars_similarity_matrix,
+        cars_sim_order,
+        "Cars SIM"
+    )
+
+
+    cars_dis_score = print_axis_order_debug(
+        cars_similarity_matrix,
+        cars_dis_order,
+        "Cars DIS"
+    )
+
+
+    print("\nCars Summary:")
+    print(f"SIM score: {cars_sim_score:.3f}")
+    print(f"DIS score: {cars_dis_score:.3f}")

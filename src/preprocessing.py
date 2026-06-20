@@ -59,7 +59,6 @@ def load_and_preprocess_cars():
 
     # originaldaten für achsenbeschriftung
     df_original = df.copy()
-    print(df_original)
 
     # origin nicht skalieren
     target = df["origin"]
