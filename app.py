@@ -1,6 +1,5 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
-
 from src.preprocessing import load_and_preprocess, load_and_preprocess_cars
 from src.clustering import add_kmeans_clusters
 from src.ordering import compute_similarity_matrix, greedy_axis_order
@@ -56,6 +55,7 @@ print(cars_axis_orders["SIM"])
 print("\nCars - DIS order:")
 print(cars_axis_orders["DIS"])
 
+
 # figure functions
 def create_parallel_coordinates_wine(ordering_name, color_by):
     selected_order = wine_axis_orders[ordering_name]
@@ -87,14 +87,7 @@ def create_parallel_coordinates_wine(ordering_name, color_by):
         ]
     )
 
-    fig.update_layout(
-        coloraxis_colorbar=dict(
-            title=color_title,
-            tickvals=[1, 2, 3],
-            ticktext=["1", "2", "3"]
-        )
-    )
-
+    fig.update_layout(coloraxis_showscale=False)
     return fig
 
 
@@ -128,14 +121,7 @@ def create_parallel_coordinates_cars(ordering_name, color_by):
         ]
     )
 
-    fig.update_layout(
-        coloraxis_colorbar=dict(
-            title=color_title,
-            tickvals=[1, 2, 3],
-            ticktext=["1", "2", "3"]
-        )
-    )
-
+    fig.update_layout(coloraxis_showscale=False)
     return fig
 
 # app layout
@@ -181,13 +167,25 @@ app.layout = html.Div(
             }
         ),
 
-        html.H2("Wine Dataset"),
+        html.H2("Wine Dataset"), 
+        html.Div(
+            id="wine-legend",
+            style={"fontSize": "18px", "marginBottom": "10px"}
+        ),
+
+
         dcc.Graph(
             id="wine-parallel-coordinates-plot",
             figure=create_parallel_coordinates_wine("Original", "cluster")
         ),
 
+        
         html.H2("Cars Dataset"),
+        html.Div(
+            id="cars-legend",
+            style={ "fontSize": "18px", "marginBottom": "10px"}
+        ),
+        
         dcc.Graph(
             id="cars-parallel-coordinates-plot",
             figure=create_parallel_coordinates_cars("Original", "cluster")
@@ -201,9 +199,12 @@ app.layout = html.Div(
     Output("wine-parallel-coordinates-plot", "figure"),
     Output("cars-parallel-coordinates-plot", "figure"),
     Output("ordering-description", "children"),
+    Output("wine-legend", "children"),
+    Output("cars-legend", "children"),
     Input("ordering-dropdown", "value"),
     Input("color-dropdown", "value")
 )
+
 def update_plots(selected_ordering, selected_color):
     descriptions = {
         "Original": "Original order: The axes are shown in the order of the dataset.",
@@ -217,146 +218,35 @@ def update_plots(selected_ordering, selected_color):
     wine_fig = create_parallel_coordinates_wine(selected_ordering, wine_color)
     cars_fig = create_parallel_coordinates_cars(selected_ordering, cars_color)
 
-    return wine_fig, cars_fig, descriptions[selected_ordering]
+    
+    if selected_color == "target":
+        wine_legend = [
+        html.Span("■ Wine class 1 ", style={"color": "#f2d70b", "marginRight": "20px"}),
+        html.Span("■ Wine class 2 ", style={"color": "#a56eff", "marginRight": "20px"}),
+        html.Span("■ Wine class 3 ", style={"color": "#00CBC1"}),
+    ]
+    else:
+        wine_legend = [
+            html.Span("■ KMeans cluster 1 ", style={"color": "#f2d70b", "marginRight": "20px"}),
+            html.Span("■ KMeans cluster 2 ", style={"color": "#a56eff", "marginRight": "20px"}),
+            html.Span("■ KMeans cluster 3 ", style={"color": "#00CBC1"}),
+            ]
+        
+    if selected_color == "target":
+        cars_legend = [ 
+            html.Span( "■ USA ", style={"color": "#f2d70b", "marginRight": "20px"}),
+            html.Span("■ Europe ", style={"color": "#a56eff", "marginRight": "20px"}),
+            html.Span("■ Japan ", style={"color": "#00CBC1"}),
+            ]
+    else: 
+        cars_legend = [
+            html.Span("■ KMeans cluster 1 ", style={"color": "#f2d70b", "marginRight": "20px"}),
+            html.Span("■ KMeans cluster 2 ", style={"color": "#a56eff", "marginRight": "20px"}),
+            html.Span("■ KMeans cluster 3 ", style={"color": "#00CBC1"}),
+            ]
+    return wine_fig, cars_fig, descriptions[selected_ordering], wine_legend, cars_legend
+    
 
 #run app
 if __name__ == "__main__":
     app.run(debug=True)
-
-# df = load_and_preprocess()
-# df = add_kmeans_clusters(df, n_clusters=3)
-
-# feature_columns = list(df.drop(columns=["class", "cluster"]).columns)
-
-# similarity_matrix = compute_similarity_matrix(df, feature_columns)
-
-# axis_orders = {
-#     "Original": feature_columns,
-#     "SIM": greedy_axis_order(similarity_matrix, mode="SIM"),
-#     "DIS": greedy_axis_order(similarity_matrix, mode="DIS")
-# }
-
-# #checking ob SIM(DIS wwirklich andere reihnefolgen haben)
-# print("\nOriginal order:")
-# print(axis_orders["Original"])
-
-# print("\nSIM order:")
-# print(axis_orders["SIM"])
-
-# print("\nDIS order:")
-# print(axis_orders["DIS"])
-
-# def create_parallel_coordinates(ordering_name, color_by):
-#     selected_order = axis_orders[ordering_name]
-#     dimensions = selected_order + ["class"]
-
-#     color_title = "Original class" if color_by == "class" else "KMeans cluster"
-
-#     fig = px.parallel_coordinates(
-#         df,
-#         dimensions=dimensions,
-#         color=color_by,
-#         range_color=[1, 3],
-#         color_continuous_scale=[
-#             "#f2d70b",
-#             "#a56eff",
-#             "#00CBC1"
-#         ],
-#         title=f"Wine Dataset - {ordering_name} axis order, colored by {color_title}"
-#     )
-
-#     fig.update_traces(
-#         dimensions=[
-#             dict(
-#                 label=dim,
-#                 values=df[dim],
-#                 tickvals=[1, 2, 3],
-#                 ticktext=["class 1", "class 2", "class 3"]
-#             ) if dim == "class" else dict(
-#                 label=dim,
-#                 values=df[dim]
-#             )
-#             for dim in dimensions
-#         ]
-#     )
-
-#     fig.update_layout(
-#         coloraxis_colorbar=dict(
-#             title=color_title,
-#             tickvals=[1, 2, 3],
-#             ticktext=["1", "2", "3"]
-#         )
-#     )
-
-#     return fig
-
-# #DASH / APP LAYOUT
-
-# app = Dash(__name__)
-
-# app.layout = html.Div(
-#     children=[
-#         html.H1("Improved Parallel Coordinates"),
-
-#         html.P(
-#             "Interactive Parallel Coordinates with KMeans clustering and axis reordering."
-#         ),
-
-#         html.Label("Axis ordering:"),
-
-#         dcc.Dropdown(
-#             id="ordering-dropdown",
-#             options=[
-#                 {"label": "Original order", "value": "Original"},
-#                 {"label": "Similarity-based order (SIM)", "value": "SIM"},
-#                 {"label": "Dissimilarity-based order (DIS)", "value": "DIS"},
-#             ],
-#             value="Original",
-#             clearable=False
-#         ),
-#         html.Label("Color encoding:"),
-#         dcc.Dropdown(
-#             id="color-dropdown",
-#             options=[
-#                 {"label": "Original wine class", "value": "class"},
-#                 {"label": "KMeans cluster", "value": "cluster"},
-#                 ],
-#                 value="cluster",
-#                 clearable=False
-#                 ),
-        
-#         # explaining the drop down options
-#         html.Div(
-#             id="ordering-description",
-#             style={
-#                 "marginTop": "15px",
-#                 "marginBottom": "15px",
-#                 "fontSize": "16px"
-#             }
-#         ),
-
-#         dcc.Graph(
-#             id="parallel-coordinates-plot",
-#             figure=create_parallel_coordinates("Original", "cluster")
-#         )
-#     ]
-# )
-
-
-# @app.callback(
-#     Output("parallel-coordinates-plot", "figure"),
-#     Output("ordering-description", "children"),
-#     Input("ordering-dropdown", "value"),
-#     Input("color-dropdown", "value")
-# )
-# def update_plot(selected_ordering, selected_color):
-#     descriptions = {
-#         "Original": "Original order: The axes are shown in the order of the dataset.",
-#         "SIM": "SIM order: Similar dimensions are placed next to each other.",
-#         "DIS": "DIS order: Dissimilar dimensions are placed next to each other. This can make clusters more salient in cluttered data."
-#     }
-
-#     return create_parallel_coordinates(selected_ordering, selected_color), descriptions[selected_ordering]
-
-# if __name__ == "__main__":
-#     app.run(debug=True)

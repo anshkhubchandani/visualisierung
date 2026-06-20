@@ -1,41 +1,32 @@
-import pandas as pd
-
-
 def compute_similarity_matrix(df, feature_columns):
-    """
-    Compute similarity between all axes/features.
-
-    We use absolute Pearson correlation:
-    high value  = features behave similarly
-    low value   = features behave differently
-    """
-
     features = df[feature_columns]
-
-    similarity_matrix = features.corr().abs()
-
-    return similarity_matrix
+    return features.corr().abs()
 
 
-
-def greedy_axis_order(similarity_matrix, mode="SIM"):
+def score_axis_order(similarity_matrix, order):
     """
-    Create an axis order using a simple greedy algorithm.
+    Compute the average similarity between neighboring axes.
+    """
 
-    SIM:
-        choose the most similar next axis
+    similarities = []
 
-    DIS:
-        choose the most dissimilar next axis
+    for left, right in zip(order[:-1], order[1:]):
+        similarities.append(similarity_matrix.loc[left, right])
+
+    return sum(similarities) / len(similarities)
+
+
+def greedy_axis_order_from_start(similarity_matrix, start_axis, mode="SIM"):
+    """
+    Create one greedy axis order from a given start axis.
     """
 
     remaining_axes = list(similarity_matrix.columns)
 
-    # start with first axis
-    current_axis = remaining_axes.pop(0)
+    current_axis = start_axis
+    remaining_axes.remove(current_axis)
 
     order = [current_axis]
-    print (order)
 
     while remaining_axes:
 
@@ -44,43 +35,68 @@ def greedy_axis_order(similarity_matrix, mode="SIM"):
                 remaining_axes,
                 key=lambda axis: similarity_matrix.loc[current_axis, axis]
             )
-            print("SIM: next axis is " + next_axis)
+
         elif mode == "DIS":
             next_axis = min(
                 remaining_axes,
                 key=lambda axis: similarity_matrix.loc[current_axis, axis]
             )
+
         else:
             raise ValueError("mode must be 'SIM' or 'DIS'")
 
         order.append(next_axis)
-        print(next_axis + " added to the order")
         remaining_axes.remove(next_axis)
         current_axis = next_axis
 
     return order
 
 
-if __name__ == "__main__":
-  if __name__ == "__main__":
-    from preprocessing import load_and_preprocess
+def greedy_axis_order(similarity_matrix, mode="SIM"):
+    """
+    Try every possible start axis and keep the best greedy result.
 
-    df = load_and_preprocess()
-    feature_columns = df.drop(columns=["class"]).columns
+    SIM:
+        keep the order with the highest average neighboring similarity
 
-    sim_matrix = compute_similarity_matrix(df, feature_columns)
+    DIS:
+        keep the order with the lowest average neighboring similarity
+    """
 
-    sim_order = greedy_axis_order(sim_matrix, mode="SIM")
-    dis_order = greedy_axis_order(sim_matrix, mode="DIS")
+    candidate_orders = []
 
-    print("\nSIM order:")
-    print(sim_order)
+    for start_axis in similarity_matrix.columns:
+        order = greedy_axis_order_from_start(
+            similarity_matrix,
+            start_axis,
+            mode=mode
+        )
 
-    print("\nDIS order:")
-    print(dis_order)
-    
-    #sim_matrix = compute_similarity_matrix(df, feature_columns)
-    # #print(sim_matrix)
+        score = score_axis_order(similarity_matrix, order)
+
+        candidate_orders.append(
+            (order, score)
+        )
+
+    if mode == "SIM":
+        best_order, best_score = max(
+            candidate_orders,
+            key=lambda item: item[1]
+        )
+
+    elif mode == "DIS":
+        best_order, best_score = min(
+            candidate_orders,
+            key=lambda item: item[1]
+        )
+
+    else:
+        raise ValueError("mode must be 'SIM' or 'DIS'")
+
+    print(f"\nBest {mode} score: {best_score:.3f}")
+
+    return best_order
+
 
 def print_axis_order_debug(similarity_matrix, order, name):
     print(f"\n{name} axis order:")
@@ -95,4 +111,36 @@ def print_axis_order_debug(similarity_matrix, order, name):
         values.append(similarity)
         print(f"{left:25s} -> {right:25s}: {similarity:.3f}")
 
-    print(f"\n{name} average neighboring similarity: {sum(values) / len(values):.3f}")
+    average_similarity = sum(values) / len(values)
+
+    print(f"\n{name} average neighboring similarity: {average_similarity:.3f}")
+
+    return average_similarity
+
+
+if __name__ == "__main__":
+    from src.preprocessing import load_and_preprocess
+
+    df = load_and_preprocess()
+    feature_columns = df.drop(columns=["class"]).columns
+
+    similarity_matrix = compute_similarity_matrix(df, feature_columns)
+
+    sim_order = greedy_axis_order(similarity_matrix, mode="SIM")
+    dis_order = greedy_axis_order(similarity_matrix, mode="DIS")
+
+    sim_score = print_axis_order_debug(
+        similarity_matrix,
+        sim_order,
+        "SIM"
+    )
+
+    dis_score = print_axis_order_debug(
+        similarity_matrix,
+        dis_order,
+        "DIS"
+    )
+
+    print("\nSummary:")
+    print(f"SIM score: {sim_score:.3f}")
+    print(f"DIS score: {dis_score:.3f}")
