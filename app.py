@@ -12,6 +12,7 @@ df = add_kmeans_clusters(df, n_clusters=3)
 feature_columns = list(df.drop(columns=["class", "cluster"]).columns)
 
 similarity_matrix = compute_similarity_matrix(df, feature_columns)
+print(similarity_matrix)
 
 axis_orders = {
     "Original": feature_columns,
@@ -29,6 +30,13 @@ print(axis_orders["SIM"])
 print("\nDIS order:")
 print(axis_orders["DIS"])
 
+from src.ordering import print_axis_order_debug
+
+print_axis_order_debug(similarity_matrix, axis_orders["SIM"], "SIM")
+print_axis_order_debug(similarity_matrix, axis_orders["DIS"], "DIS")
+
+
+#legend verstecken 
 def create_parallel_coordinates(ordering_name, color_by):
     selected_order = axis_orders[ordering_name]
     dimensions = selected_order + ["class"]
@@ -47,6 +55,7 @@ def create_parallel_coordinates(ordering_name, color_by):
         ],
         title=f"Wine Dataset - {ordering_name} axis order, colored by {color_title}"
     )
+#hier legend einfügen
 
     fig.update_traces(
         dimensions=[

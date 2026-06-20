@@ -35,6 +35,7 @@ def greedy_axis_order(similarity_matrix, mode="SIM"):
     current_axis = remaining_axes.pop(0)
 
     order = [current_axis]
+    print (order)
 
     while remaining_axes:
 
@@ -43,17 +44,17 @@ def greedy_axis_order(similarity_matrix, mode="SIM"):
                 remaining_axes,
                 key=lambda axis: similarity_matrix.loc[current_axis, axis]
             )
-
+            print("SIM: next axis is " + next_axis)
         elif mode == "DIS":
             next_axis = min(
                 remaining_axes,
                 key=lambda axis: similarity_matrix.loc[current_axis, axis]
             )
-
         else:
             raise ValueError("mode must be 'SIM' or 'DIS'")
 
         order.append(next_axis)
+        print(next_axis + " added to the order")
         remaining_axes.remove(next_axis)
         current_axis = next_axis
 
@@ -81,3 +82,18 @@ if __name__ == "__main__":
     
     #sim_matrix = compute_similarity_matrix(df, feature_columns)
     # #print(sim_matrix)
+
+def print_axis_order_debug(similarity_matrix, order, name):
+    print(f"\n{name} axis order:")
+    print(order)
+
+    print(f"\n{name} neighboring similarities:")
+
+    values = []
+
+    for left, right in zip(order[:-1], order[1:]):
+        similarity = similarity_matrix.loc[left, right]
+        values.append(similarity)
+        print(f"{left:25s} -> {right:25s}: {similarity:.3f}")
+
+    print(f"\n{name} average neighboring similarity: {sum(values) / len(values):.3f}")
