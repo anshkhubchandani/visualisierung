@@ -9,7 +9,7 @@ from src.ordering import compute_similarity_matrix, greedy_axis_order
 wine_df = load_and_preprocess()
 wine_df = add_kmeans_clusters(wine_df, target_column="class", n_clusters=3)
 
-cars_df = load_and_preprocess_cars()
+cars_df, cars_original_df = load_and_preprocess_cars()
 cars_df = add_kmeans_clusters(
     cars_df,
     target_column="origin",
@@ -21,7 +21,7 @@ wine_target = "class"
 cars_target = "origin"
 
 wine_feature_columns = list(wine_df.drop(columns=[wine_target, "cluster"]).columns)
-cars_feature_columns = list(cars_df.drop(columns=[cars_target, "cluster"]).columns)
+cars_feature_columns = list(cars_df.drop(columns=[cars_target, "cluster", "model_year"]).columns)
 
 # similarity matrices
 wine_similarity_matrix = compute_similarity_matrix(wine_df, wine_feature_columns)
@@ -91,9 +91,45 @@ def create_parallel_coordinates_wine(ordering_name, color_by):
     return fig
 
 
+# new for original axis values (cars)!!!
+def create_axis_with_original_ticks(dim, normalized_df, original_df, n_ticks=5):
+    orig_min = original_df[dim].min()
+    orig_max = original_df[dim].max()
+
+    if orig_min == orig_max:
+        return dict(
+            label=dim,
+            values=normalized_df[dim]
+        )
+
+    ticktext_vals = [
+        orig_min + (orig_max - orig_min) * i / (n_ticks - 1)
+        for i in range(n_ticks)
+    ]
+    
+    # originalwerte in normierte tick-position umrechnen
+    if dim == "model_year":
+        ticktext_vals = [round(v) for v in ticktext_vals]
+        ticktext_vals = sorted(list(dict.fromkeys(ticktext_vals)))
+    else:
+        ticktext_vals = [round(v, 1) for v in ticktext_vals]
+
+    tickvals_norm = [
+        (v - orig_min) / (orig_max - orig_min)
+        for v in ticktext_vals
+    ]
+
+    return dict(
+        label=dim,
+        values=normalized_df[dim],
+        tickvals=tickvals_norm,
+        ticktext=[str(v) for v in ticktext_vals]
+    )
+
+
 def create_parallel_coordinates_cars(ordering_name, color_by):
     selected_order = cars_axis_orders[ordering_name]
-    dimensions = selected_order + [cars_target]
+    dimensions = selected_order + ["model_year", cars_target]
 
     color_title = "Original origin" if color_by == cars_target else "KMeans cluster"
 
@@ -111,11 +147,17 @@ def create_parallel_coordinates_cars(ordering_name, color_by):
             dict(
                 label=dim,
                 values=cars_df[dim],
+                tickvals=[70, 73, 76, 79, 82],
+                ticktext=["1970", "1973","1976", "1979","1982"]
+            ) if dim == "model_year" else dict(
+                label=dim,
+                values=cars_df[dim],
                 tickvals=[1, 2, 3],
                 ticktext=["USA", "Europe", "Japan"]
-            ) if dim == cars_target else dict(
-                label=dim,
-                values=cars_df[dim]
+            ) if dim == cars_target else create_axis_with_original_ticks(
+                dim,
+                cars_df,
+                cars_original_df
             )
             for dim in dimensions
         ]
