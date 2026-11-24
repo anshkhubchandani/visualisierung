@@ -1,10 +1,10 @@
-# Improved parallel coordinates – interactive multivariate visualization (Python, Dash)
+# Improved parallel coordinates: interactive multivariate visualization (Python, Dash)
 
 An interactive web app that makes **parallel coordinates plots** easier to read by
 (1) **reordering the axes** automatically and (2) **colouring samples by k-means clusters** or by their
 true class. Demonstrated on two classic multivariate datasets.
 
-> University project (M.Sc. Bioinformatics, FSU Jena – module *Visualization*, team of 2, grade 1.0).
+> University project (M.Sc. Bioinformatics, FSU Jena, module *Visualization*, team of 2, grade 1.0).
 
 ## Why
 In a parallel coordinates plot the order of the axes decides which patterns you can see: correlations are
@@ -12,14 +12,14 @@ only visible between *neighbouring* axes. The default column order is arbitrary,
 often hidden.
 
 ## What it does
-- **Axis ordering** – computes the absolute Pearson correlation between all features and builds a greedy
+- **Axis ordering:** computes the absolute Pearson correlation between all features and builds a greedy
   ordering from every possible start axis, keeping the best one:
   - **SIM**: neighbouring axes as similar as possible → smooth, readable bundles
   - **DIS**: neighbouring axes as dissimilar as possible → highlights contrasts
   - **Original**: column order of the dataset, for comparison
-- **Clustering** – k-means (k = 3) on min-max-normalized features; switch the colouring between the
+- **Clustering:** k-means (k = 3) on min-max-normalized features; switch the colouring between the
   true labels and the clusters to see how well unsupervised groups match the real classes
-- **Interactive** – Plotly parallel coordinates with brushing on each axis; dropdowns switch ordering and
+- **Interactive:** Plotly parallel coordinates with brushing on each axis; dropdowns switch ordering and
   colouring live
 
 ## Datasets
