@@ -14,4 +14,19 @@ venv/
 
 # IDE
 .vscode/
-.idea/
+.idea/*.aux
+*.log
+*.bbl
+*.blg
+*.bcf
+*.out
+*.toc
+*.run.xml
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+build/
+.gradle/
+*.class
+id_rsa*
+*.pem
